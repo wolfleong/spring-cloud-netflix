@@ -122,6 +122,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 			this.logger.warn("No routes found from RouteLocator");
 		}
 		else {
+			// 遍历路由信息，将 urlPath 和 ZuulController 注册到父类 handlerMap 里
 			for (Route route : routes) {
 				registerHandler(route.getFullPath(), this.zuul);
 			}
