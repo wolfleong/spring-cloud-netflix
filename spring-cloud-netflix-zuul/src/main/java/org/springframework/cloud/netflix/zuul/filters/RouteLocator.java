@@ -20,23 +20,27 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * 路由定位器
  * @author Dave Syer
  */
 public interface RouteLocator {
 
 	/**
+	 * 获取要忽略的路由匹配路径
 	 * Ignored route paths (or patterns), if any.
 	 * @return {@link Collection} of ignored paths
 	 */
 	Collection<String> getIgnoredPaths();
 
 	/**
+	 * 获取所有的路由对象
 	 * A map of route path (pattern) to location (e.g. service id or URL).
 	 * @return {@link List} of routes
 	 */
 	List<Route> getRoutes();
 
 	/**
+	 * 根据路径获取路由对象
 	 * Maps a path to an actual route with full metadata.
 	 * @param path used to match the {@link Route}
 	 * @return matching {@link Route} based on the provided path

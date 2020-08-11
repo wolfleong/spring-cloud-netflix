@@ -24,6 +24,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.util.Assert;
 
 /**
+ * 多个路由定位器的复合实现
  * RouteLocator that composes multiple RouteLocators.
  *
  * @author Johannes Edmeier
@@ -31,17 +32,27 @@ import org.springframework.util.Assert;
  */
 public class CompositeRouteLocator implements RefreshableRouteLocator {
 
+	/**
+	 * 原始的路由定位器集合
+	 */
 	private final Collection<? extends RouteLocator> routeLocators;
 
+	/**
+	 * 排好序的路由定位器集合
+	 */
 	private ArrayList<RouteLocator> rl;
 
 	public CompositeRouteLocator(Collection<? extends RouteLocator> routeLocators) {
 		Assert.notNull(routeLocators, "'routeLocators' must not be null");
 		rl = new ArrayList<>(routeLocators);
+		//排序
 		AnnotationAwareOrderComparator.sort(rl);
 		this.routeLocators = rl;
 	}
 
+	/**
+	 * 获取所有的忽略路径匹配
+	 */
 	@Override
 	public Collection<String> getIgnoredPaths() {
 		List<String> ignoredPaths = new ArrayList<>();
@@ -51,6 +62,9 @@ public class CompositeRouteLocator implements RefreshableRouteLocator {
 		return ignoredPaths;
 	}
 
+	/**
+	 * 获取所有的路由
+	 */
 	@Override
 	public List<Route> getRoutes() {
 		List<Route> route = new ArrayList<>();
@@ -60,6 +74,9 @@ public class CompositeRouteLocator implements RefreshableRouteLocator {
 		return route;
 	}
 
+	/**
+	 * 获取匹配路径的路由
+	 */
 	@Override
 	public Route getMatchingRoute(String path) {
 		for (RouteLocator locator : routeLocators) {
@@ -71,6 +88,9 @@ public class CompositeRouteLocator implements RefreshableRouteLocator {
 		return null;
 	}
 
+	/**
+	 * 刷新路由
+	 */
 	@Override
 	public void refresh() {
 		for (RouteLocator locator : routeLocators) {

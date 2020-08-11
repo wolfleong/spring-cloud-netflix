@@ -110,6 +110,9 @@ public class ZuulServerAutoConfiguration {
 				ZuulServerAutoConfiguration.class);
 	}
 
+	/**
+	 * 获取容器中所有的路由定位器, 组装成复合的路由定位器
+	 */
 	@Bean
 	@Primary
 	public CompositeRouteLocator primaryRouteLocator(
@@ -117,6 +120,9 @@ public class ZuulServerAutoConfiguration {
 		return new CompositeRouteLocator(routeLocators);
 	}
 
+	/**
+	 * 根据路由配置创建 SimpleRouteLocator
+	 */
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
 	public SimpleRouteLocator simpleRouteLocator() {
@@ -124,11 +130,17 @@ public class ZuulServerAutoConfiguration {
 				this.zuulProperties);
 	}
 
+	/**
+	 * 创建 ZuulController
+	 */
 	@Bean
 	public ZuulController zuulController() {
 		return new ZuulController();
 	}
 
+	/**
+	 * 创建 ZuulHandlerMapping
+	 */
 	@Bean
 	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes,
 			ZuulController zuulController) {
