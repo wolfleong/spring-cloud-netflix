@@ -97,14 +97,26 @@ public class ZuulServerAutoConfiguration {
 	@Autowired
 	protected ZuulProperties zuulProperties;
 
+	/**
+	 * WEB 服务配置
+	 */
 	@Autowired
 	protected ServerProperties server;
 
+	/**
+	 * 错误处理器
+	 */
 	@Autowired(required = false)
 	private ErrorController errorController;
 
+	/**
+	 * 跨域配置
+	 */
 	private Map<String, CorsConfiguration> corsConfigurations;
 
+	/**
+	 * 所有 Web MVC 配置器
+	 */
 	@Autowired(required = false)
 	private List<WebMvcConfigurer> configurers = emptyList();
 
@@ -157,12 +169,20 @@ public class ZuulServerAutoConfiguration {
 		return mapping;
 	}
 
+	/**
+	 * 获取跨域配置
+	 */
 	protected final Map<String, CorsConfiguration> getCorsConfigurations() {
+		//如果跨域配置为空
 		if (this.corsConfigurations == null) {
+			//创建 ZuulCorsRegistry
 			ZuulCorsRegistry registry = new ZuulCorsRegistry();
+			//调用配置器, 注册跨域配置到 ZuulCorsRegistry 中
 			this.configurers.forEach(configurer -> configurer.addCorsMappings(registry));
+			//设置到 corsConfigurations
 			this.corsConfigurations = registry.getCorsConfigurations();
 		}
+		//返回
 		return this.corsConfigurations;
 	}
 
@@ -172,6 +192,9 @@ public class ZuulServerAutoConfiguration {
 		return new ZuulRefreshListener();
 	}
 
+	/**
+	 * 创建 Zuul Servlet
+	 */
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServlet")
 	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "false",
