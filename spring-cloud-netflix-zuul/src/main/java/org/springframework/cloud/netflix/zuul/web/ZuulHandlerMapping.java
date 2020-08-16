@@ -33,6 +33,7 @@ import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
 /**
+ * 处理 Zuul 请求的 HandlerMapping, 主要是维护 Zuul Path 和 ZuulController 的映射关系
  * MVC HandlerMapping that maps incoming request paths to remote services.
  *
  * @author Spencer Gibb
@@ -42,19 +43,32 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
  */
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
+	/**
+	 * 路由定位器
+	 */
 	private final RouteLocator routeLocator;
 
+	/**
+	 * 路由请求处理器
+	 */
 	private final ZuulController zuul;
 
+	/**
+	 * 错误处理器
+	 */
 	private ErrorController errorController;
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
+	/**
+	 * 是否需要重新注册处理器
+	 */
 	private volatile boolean dirty = true;
 
 	public ZuulHandlerMapping(RouteLocator routeLocator, ZuulController zuul) {
 		this.routeLocator = routeLocator;
 		this.zuul = zuul;
+		//设置顺序
 		setOrder(-200);
 	}
 
@@ -73,8 +87,15 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		this.errorController = errorController;
 	}
 
+	/**
+	 *  setDirty 有两个操作,
+	 *  一是重新加载 Route 对象,
+	 *  二是设置 zuulHandlerMapping 数据的状态, 以便重新将所有新的 path 与 ZuulController 注册的 Mapping 上
+	 */
 	public void setDirty(boolean dirty) {
+		//标记脏数据
 		this.dirty = dirty;
+		//刷新路由
 		if (this.routeLocator instanceof RefreshableRouteLocator) {
 			((RefreshableRouteLocator) this.routeLocator).refresh();
 		}
@@ -83,25 +104,31 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	@Override
 	protected Object lookupHandler(String urlPath, HttpServletRequest request)
 			throws Exception {
+		//如果是错误的处理器的路径, 则不处理
 		if (this.errorController != null
 				&& urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
+		//处理忽略的请求路径
 		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) {
 			return null;
 		}
+		//如果是转发, 也不处理
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {
 			return null;
 		}
+		//如果是脏数据
 		if (this.dirty) {
 			synchronized (this) {
 				if (this.dirty) {
+					//重新注册 Handlers
 					registerHandlers();
 					this.dirty = false;
 				}
 			}
 		}
+		//根据 urlPath 查询处理器
 		return super.lookupHandler(urlPath, request);
 	}
 
@@ -122,7 +149,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 			this.logger.warn("No routes found from RouteLocator");
 		}
 		else {
-			// 遍历路由信息，将 urlPath 和 ZuulController 注册到父类 handlerMap 里
+			// 遍历路由信息，将路由的路径 和 ZuulController 注册到父类 handlerMap 里
 			for (Route route : routes) {
 				registerHandler(route.getFullPath(), this.zuul);
 			}

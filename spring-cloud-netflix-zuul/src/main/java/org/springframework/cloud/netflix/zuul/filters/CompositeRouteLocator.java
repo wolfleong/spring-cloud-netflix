@@ -33,12 +33,12 @@ import org.springframework.util.Assert;
 public class CompositeRouteLocator implements RefreshableRouteLocator {
 
 	/**
-	 * 原始的路由定位器集合
+	 * 排好序的路由定位器集合
 	 */
 	private final Collection<? extends RouteLocator> routeLocators;
 
 	/**
-	 * 排好序的路由定位器集合
+	 * 不明白, 为什么要 rl 这个集合 ?
 	 */
 	private ArrayList<RouteLocator> rl;
 
@@ -75,7 +75,7 @@ public class CompositeRouteLocator implements RefreshableRouteLocator {
 	}
 
 	/**
-	 * 获取匹配路径的路由
+	 * 获取匹配路径的路由对象
 	 */
 	@Override
 	public Route getMatchingRoute(String path) {
@@ -93,7 +93,9 @@ public class CompositeRouteLocator implements RefreshableRouteLocator {
 	 */
 	@Override
 	public void refresh() {
+		//遍历所有路由定位器
 		for (RouteLocator locator : routeLocators) {
+			//执行刷新
 			if (locator instanceof RefreshableRouteLocator) {
 				((RefreshableRouteLocator) locator).refresh();
 			}

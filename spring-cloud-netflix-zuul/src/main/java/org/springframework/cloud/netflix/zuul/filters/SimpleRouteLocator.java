@@ -59,7 +59,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	private String dispatcherServletPath = "/";
 
 	/**
-	 * zuul 路径
+	 * zuul 的 ServletPath 路径
 	 */
 	private String zuulServletPath;
 

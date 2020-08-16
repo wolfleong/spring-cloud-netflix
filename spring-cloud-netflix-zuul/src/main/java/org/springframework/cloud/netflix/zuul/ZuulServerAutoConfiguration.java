@@ -78,6 +78,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import static java.util.Collections.emptyList;
 
 /**
+ * Zuul 服务自动配置类
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Biju Kunjummen
@@ -90,6 +91,9 @@ import static java.util.Collections.emptyList;
 // FIXME @Import(ServerPropertiesAutoConfiguration.class)
 public class ZuulServerAutoConfiguration {
 
+	/**
+	 * Zuul 配置
+	 */
 	@Autowired
 	protected ZuulProperties zuulProperties;
 
@@ -121,7 +125,7 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	/**
-	 * 根据路由配置创建 SimpleRouteLocator
+	 * 通过路由配置创建 SimpleRouteLocator
 	 */
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
@@ -131,7 +135,7 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	/**
-	 * 创建 ZuulController
+	 * 创建 ZuulController 对象
 	 */
 	@Bean
 	public ZuulController zuulController() {
@@ -139,13 +143,16 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	/**
-	 * 创建 ZuulHandlerMapping
+	 * 创建 ZuulHandlerMapping 对象
 	 */
 	@Bean
 	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes,
 			ZuulController zuulController) {
+		//创建 ZuulHandlerMapping
 		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController);
+		//设置 ErrorController
 		mapping.setErrorController(this.errorController);
+		//设置跨域配置
 		mapping.setCorsConfigurations(getCorsConfigurations());
 		return mapping;
 	}
@@ -161,6 +168,7 @@ public class ZuulServerAutoConfiguration {
 
 	@Bean
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
+		//创建刷新路由监听器
 		return new ZuulRefreshListener();
 	}
 
