@@ -127,7 +127,7 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	/**
-	 * 获取容器中所有的路由定位器, 组装成复合的路由定位器
+	 * 获取容器中所有的路由定位器, 组装成复合的路由定位器, 作为主要路由定位器
 	 */
 	@Bean
 	@Primary
@@ -193,7 +193,7 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	/**
-	 * 创建 Zuul Servlet
+	 * 创建 ZuulServlet
 	 */
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServlet")
@@ -208,6 +208,9 @@ public class ZuulServerAutoConfiguration {
 		return servlet;
 	}
 
+	/**
+	 * 创建 ZuulServletFilter
+	 */
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServletFilter")
 	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "true",
@@ -224,6 +227,7 @@ public class ZuulServerAutoConfiguration {
 		return filterRegistration;
 	}
 
+	//相关前置过滤器
 	// pre filters
 
 	@Bean
@@ -249,6 +253,7 @@ public class ZuulServerAutoConfiguration {
 		return new Servlet30WrapperFilter();
 	}
 
+	//相关后置过滤器
 	// post filters
 
 	@Bean
@@ -322,6 +327,9 @@ public class ZuulServerAutoConfiguration {
 
 	}
 
+	/**
+	 * Zuul配置刷新监听器
+	 */
 	private static class ZuulRefreshListener
 			implements ApplicationListener<ApplicationEvent> {
 
@@ -360,6 +368,9 @@ public class ZuulServerAutoConfiguration {
 
 	}
 
+	/**
+	 * Zuul 跨域注册表
+	 */
 	private static class ZuulCorsRegistry extends CorsRegistry {
 
 		@Override
